@@ -26,7 +26,6 @@ extra-streamlit-components==0.1.60
 Faker==19.6.2
 favicon==0.7.0
 filelock==3.12.4
-Fiona==1.9.4.post1
 folium==0.14.0
 fonttools==4.42.1
 gdown==4.7.1

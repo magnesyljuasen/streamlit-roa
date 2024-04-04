@@ -1,8 +1,5 @@
 import streamlit as st
 import streamlit_authenticator as stauth
-from streamlit_extras.switch_page_button import switch_page
-from streamlit_extras.no_default_selectbox import selectbox
-from streamlit_extras.add_vertical_space import add_vertical_space
 import pymongo
 import pandas as pd
 import numpy as np
