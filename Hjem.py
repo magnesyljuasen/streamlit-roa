@@ -47,10 +47,11 @@ class Dashboard:
             st.stop()
         elif authentication_status: # app start
             with st.sidebar:
-                st.image(Image.open('src/data/img/av_logo.png'), caption="Løsningen er laget av Asplan Viak for Røa IL") # logo
-                authenticator.logout('Logg ut')
-                st.caption(f"*Velkommen, {name}!*")
-                st.markdown("---")
+                # st.image(Image.open('src/data/img/av_logo.png'), caption="Løsningen er laget av Asplan Viak for Røa IL") # logo
+                # authenticator.logout('Logg ut')
+                # st.caption(f"*Velkommen, {name}!*")
+                # st.markdown("---")
+                pass
 
     def database_to_df(self, mycollection, substring):
         query = {"Name": {"$regex": f".*{substring}.*"}}
@@ -80,7 +81,7 @@ class Dashboard:
     def convert_to_float(self, value):
         return float(str(value).replace(',', '.'))
 
-    def get_full_dataframe(self):
+    def get_full_dataframe(self, normalize):
         #client = pymongo.MongoClient(**st.secrets["mongo"])
         client = pymongo.MongoClient("mongodb+srv://magnesyljuasen:jau0IMk5OKJWJ3Xl@cluster0.dlyj4y2.mongodb.net/")
         mydatabase = client["Røa"]
@@ -105,6 +106,42 @@ class Dashboard:
         merged_df['Tid'] = pd.to_datetime(merged_df['Tid'], format='%d.%m.%y %H:%M:%S')
         merged_df = merged_df.sort_values('Tid')
         merged_df = merged_df.reset_index(drop = True)
+        #
+        merged_df['RET_VARME'] = (merged_df['RET_VARME'])*1000
+        merged_df['RET_LADING'] = (merged_df['RET_LADING'])*1000
+        merged_df['STRØM_KWH'] = (merged_df['STRØM_KWH'])*1000
+        merged_df['COP'] = merged_df['RET_VARME'] / merged_df['STRØM_KWH']
+        merged_df['ΔT over varmepumpen (°C)'] = merged_df['RT402'] - merged_df['RT502']
+        #
+        merged_df['RET_VARME_INCREMENT'] = merged_df['RET_VARME'].diff()
+        merged_df['RET_LADING_INCREMENT'] = merged_df['RET_LADING'].diff()
+        merged_df['STRØM_KWH_INCREMENT'] = merged_df['STRØM_KWH'].diff()
+        #
+        if normalize:
+            merged_df['RET_VARME'] = merged_df['RET_VARME'] - merged_df['RET_VARME'][0]
+            merged_df['RET_LADING'] = merged_df['RET_LADING'] - merged_df['RET_LADING'][0]
+            merged_df['STRØM_KWH'] = merged_df['STRØM_KWH'] - merged_df['STRØM_KWH'][0]
+        #
+        merged_df = merged_df.rename(columns={
+            "RT401" : "Temperatur ned i brønner (°C)",
+            "RT501" : "Temperatur opp fra brønner (°C)",
+            "RT402" : "Temperatur ut fra varmepumpe (°C)",
+            "RT502" : "Temperatur inn til varmepumpe (°C)",
+            "RT403" : "Temperatur til bane (°C)",
+            "RT503" : "Temperatur fra bane (°C)", #?
+            "RP401" : "Trykkmåler opp fra brønner (bar)",
+            "RP501" : "Trykkmåler inn til varmepumpe (bar)",
+            "RP402" : "Trykkmåler ut til bane? (bar)",
+            "Snø_1" : "Snø 1",
+            "Snø_2" : "Snø 2",
+            "RET_LADING" : "Energi til brønner (kWh)",
+            "RET_VARME" : "Energi til banen (kWh)",
+            "STRØM_KWH" : "Strømforbruk (kWh)",
+            "RET_LADING_INCREMENT" : "Effekt til brønner (kW)",
+            "RET_VARME_INCREMENT" : "Effekt til banen (kW)",
+            "STRØM_KWH_INCREMENT" : "Effektforbruk strøm (kW)",
+            })
+
         return merged_df
 
     def download_csv(self, dataframe):
@@ -600,8 +637,11 @@ class Dashboard:
         self.streamlit_settings()
         name, authentication_status, username, authenticator = self.streamlit_login()
         self.streamlit_login_page(name, authentication_status, username, authenticator)
-        st.title("Røa kunstgressbane- Livedata") # page title
-        df = self.get_full_dataframe() # get dataframe
+        st.title("Røa kunstgressbane - Livedata") # page title
+        with st.sidebar:
+            NORMALIZE = st.toggle('Normaliser energidata?', value=True)
+            NUMBER_OF_COLUMNS = st.selectbox('Antall kolonner i visning?', options=[4,3,2,1])
+        df = self.get_full_dataframe(normalize=NORMALIZE) # get dataframe
         
 #        self.get_electric_df()
 #        self.get_temperature_series()
@@ -639,24 +679,48 @@ class Dashboard:
         ####
         df.set_index("Tid", inplace=True)
         df.drop(columns=['Tidsverdier'], inplace=True)
-        fig = make_subplots(rows=(len(df.columns) - 1) // 3 + 1, cols=3, subplot_titles=df.columns[0:])
 
+        # Determine number of subplots
+        num_plots = len(df.columns)
+        num_cols = NUMBER_OF_COLUMNS
+        num_rows = (num_plots - 1) // num_cols + 1
+
+        fig = make_subplots(
+            rows=num_rows,
+            cols=num_cols,
+            subplot_titles=df.columns[0:],
+            shared_xaxes=True
+        )
+
+        # Add traces
         row = 1
         col = 1
-        for i, column in enumerate(df.columns[0:]):  # Exclude the first column 'Tid'
-            fig.add_trace(go.Scatter(x=df.index, y=df[column], mode='lines', name='YourColumnName'), row=row, col=col)
-            #fig.update_yaxes(row=row, col=col, title_standoff=5, title_text=column)
-#            fig.update_xaxes(title_text="Tid", row=row, col=col)
+        for i, column in enumerate(df.columns):  # Use all columns
+            fig.add_trace(
+                go.Scatter(x=df.index, y=df[column], mode='lines', name=column),
+                row=row, col=col
+            )
             col += 1
-            if col > 3:
+            if col > num_cols:
                 col = 1
                 row += 1
 
+        # Ensure x-axis tick labels are shown for all subplots
+        for r in range(1, num_rows + 1):
+            for c in range(1, num_cols + 1):
+                idx = (r - 1) * num_cols + c
+                if idx > num_plots:
+                    continue  # skip empty cells
+                axis_name = f'xaxis{idx}' if idx > 1 else 'xaxis'
+                fig.update_layout({axis_name: dict(showticklabels=True)})
+
+        # Final layout
         fig.update_layout(
-            showlegend=False, 
+            showlegend=False,
             margin=dict(l=40, r=40, t=80, b=40),
-            height=1500,  # Adjust the height of the figure according to your preference
+            height=300 * num_rows,  # adjust based on number of rows
         )
+
         st.plotly_chart(fig, use_container_width=True, config={'displayModeBar': False})
 
         

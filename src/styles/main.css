@@ -1,40 +1,181 @@
-@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600&display=swap');
 
 
-* {font-family: 'Montserrat';}
-
-/*
-section[tabindex="0"] {
-  overflow-x: hidden;
+body, h1, h2, h3, h4, h5, h6, p, span, a, li, div, blockquote, pre, code {
+    font-family: 'Montserrat', sans-serif;
+    color: #1d3c34; /* Replace #333 with your desired text color */
 }
-*/
+
+h1 {
+    font-size: 2.5rem; /* Adjust to your desired size, e.g. 2rem, 1.8rem, etc. */
+}
+
+h2 {
+    font-size: 1.5rem; /* Adjust to your desired size */
+}
+
+h3 {
+    font-size: 1.2rem; /* Adjust to your desired size */
+}
+
+iframe[title="streamlit_folium.st_folium"] { height: 405px;}
+
+.title {
+    margin-top : 5%;
+    font-size: 60px; 
+    font-family: 'Montserrat';
+    font-weight: 700;
+    line-height: 1em;
+    text-align: left;
+}
+
+.subtitle {
+    font-size: 34px; 
+    font-family: 'Montserrat';
+    font-weight: 500;
+    line-height: 1em;
+    text-align: left;
+}
+
+/* SELECTBOX */
+.stSelectbox{
+    text-align: center;
+    border: 2px solid #1d3c34 ;
+    border-radius: 10px;
+    box-shadow: -6px 8px 20px 1px #00000000;
+}
+
+.stSelectbox > div{
+    text-align: center;
+    font-size: 16px;
+}
+
+section.main > div {
+    max-width: 1600px;
+    }
 
 a {
-    text-decoration: underline;
-    color: #001aa2 !important;
+    text-decoration: none;
+    color: #1d3c34 !important;
     font-weight: 400;
 }
 
 a:hover {
-    color: #d33682 !important;
+    color: #1A1A1A !important;
     text-decoration: none;
 }
 
-ul {list-style-type: circle;}
+ul {list-style-type: none;}
+
+
+ul.streamlit-expander {
+    background-color: transparent;
+    border-radius: 25px;
+    border: 0.05px solid #1d3c34;
+    padding: 5px;
+}
 
 hr {
     margin-top: 0px;
     margin-bottom: 5%;
 }
 
-div.stButton > button:first-child {
+
+/*
+.stTextInput>div>div>input {
+    color: black;
+    background-color: whitesmoke;
+    border: #1d3c34;
+}
+*/
+
+div[data-testid="stMetric"] {
+    background-color: #b7dc8f;  /* example: light teal background */
+    border-radius: 15px;
+    padding: 15px 20px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+/* Style the label (metric title) */
+div[data-testid="stMetric"] > div > div:first-child {
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 600;
+    font-size: 1.25rem;
+    color: #1d3c34;
+    margin-bottom: 6px;
+}
+
+/* Style the value */
+div[data-testid="stMetric"] > div > div:nth-child(2) {
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 700;
+    font-size: 2.5rem;
+    color: #107C41; /* greenish */
+}
+
+/* Style the delta (change value) */
+div[data-testid="stMetric"] > div > div:nth-child(3) {
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 500;
+    font-size: 1rem;
+    color: #1d3c34;
+}
+
+div.block-container {
+        padding-top: 2rem;
+        padding-bottom: 0rem;
+        padding-left: 5rem;
+        padding-right: 5rem;
+    }
+
+div.input > button:first-child { 
+    color: #1d3c34;
+    }
+
+div.stLinkButton > button:first-child { 
+    color: #1d3c34;
+    }
+
+div.stLinkButton > button:first-child {
     color: white;
-    background-color: #001aa2;
+    background-color: #1d3c34;
     opacity: 1;
     border: none;
     transition-duration: 0.4s;
     appearance: none;
-    border: 0px solid #1A1A1A;
+    border: 1px solid #1d3c34;
+    border-radius: 15px;
+    box-sizing: border-box;
+    cursor: pointer;
+    display: inline-block;
+    font-family: Roobert,-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol";
+    font-size: 16px;
+    font-weight: 600;
+    line-height: normal;
+    margin: 0;
+    min-height: 60px;
+    min-width: 0;
+    outline: none;
+    padding: 16px 24px;
+    text-align: center;
+    text-decoration: none;
+    transition: all 300ms cubic-bezier(.23, 1, 0.32, 1);
+    user-select: none;
+    -webkit-user-select: none;
+    touch-action: manipulation;
+    width: 100%;
+    will-change: transform;
+}
+
+/* CSS */
+div.stButton > button:first-child {
+    color: white;
+    background-color: #F6F8F1;
+    opacity: 1;
+    border: none;
+    transition-duration: 0.4s;
+    appearance: none;
+    border: 1px solid #1d3c34;
     border-radius: 15px;
     box-sizing: border-box;
     cursor: pointer;
@@ -57,29 +198,53 @@ div.stButton > button:first-child {
     width: 100%;
     will-change: transform;
   }
-
+  
   div.stButton > button:hover {
     color: white;
-    background-color: #b7dc8f;
+    background-color: #F0F4E3;
     box-shadow: rgba(0, 0, 0, 0.25) 0 8px 15px;
     transform: translateY(-2px);
   }
-
-  [data-testid="column"] {
-    /*box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); */
-    padding: 10px; /* Padding inside the card */
-    overflow: hidden;
-}
-
-  div[class^='block-container'] {
-    padding-top: 2rem; }
   
   div.stButton > button:active {
     box-shadow: none;
     transform: translateY(0);
   }
-
   
-#MainMenu {visibility: hidden;}
+  div.stProgress > div > div > div > div {
+    background-color: #1d3c34;
+    }
+
+/* Style containers */
+[data-testid="stVerticalBlock"] > [style*="flex-direction: column;"] > [data-testid="stVerticalBlock"] {
+    padding: 30px;
+    border-radius: 25px;
+    border: 1px groove #1d3c34;
+}
+
+MainMenu {visibility: hidden;}
+
 footer {visibility: hidden;}
-header {visibility: hidden;}
+        
+footer:hover,  footer:active {
+    color: #ffffff;
+    background-color: transparent;
+    text-decoration: underline;
+    transition: 400ms ease 0s;
+}
+
+footer:after {
+    content:"En tjeneste levert av Asplan Viak"; 
+    visibility: visible;
+    display: block;
+    position: relative;
+    padding: 5px;
+    top: 2px;
+    color: black;
+}
+
+
+
+
+
+
